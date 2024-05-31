@@ -34,7 +34,7 @@ public class BOJ_G2473 {
             if (baseCnt == 0) break;
             for (int j = i + 1; j < acidCnt; j++) {
                 long sum = acids[i] + acids[j];
-                int idx = Arrays.binarySearch(bases, 0, baseCnt, sum);
+                int idx = bs(bases, baseCnt, sum);
                 if (idx > 0) {
                     minVal = 0;
                     saveAns(bases[idx] * -1, acids[i], acids[j]);
@@ -57,7 +57,7 @@ public class BOJ_G2473 {
             if (acidCnt == 0) break;
             for (int j = i + 1; j < baseCnt; j++) {
                 long sum = bases[i] + bases[j];
-                int idx = Arrays.binarySearch(acids, 0, acidCnt, sum);
+                int idx = bs(acids, acidCnt, sum);
                 if (idx > 0) {
                     minVal = 0;
                     saveAns(bases[j] * -1, bases[i] * -1, acids[idx]);
@@ -93,6 +93,18 @@ public class BOJ_G2473 {
 
         bw.flush();
         bw.close();
+    }
+
+    // Arrays.binarySearch 교체 연습
+    static int bs(long[] bases, int size, long target) {
+        int left = 0, right = size - 1;
+        while (left <= right) {
+            int mid = right + ((left - right) / 2);
+            if (bases[mid] == target) return mid;
+            if (bases[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return (left + 1) * -1;
     }
 
     static void saveAns(long a, long b, long c) {
