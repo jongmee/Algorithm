@@ -12,29 +12,7 @@ class Programmers_Level3_42892 {
         for (int i = 0; i < len; i++) nodes[i] = new Node(i, nodeinfo[i][0], nodeinfo[i][1]);
         Arrays.sort(nodes);
 
-        List<List<Node>> nodesByLevel = new ArrayList<>();
-        int level = 0, height = nodes[0].y;
-        for (int i = 0; i < len; i++) {
-            if (nodes[i].y < height) {
-                height = nodes[i].y;
-                level++;
-            }
-            if (nodesByLevel.size() <= level) nodesByLevel.add(new ArrayList<>());
-            nodesByLevel.get(level).add(nodes[i]);
-        }
-
-        if (nodesByLevel.size() == 1) return new int[][]{{1}, {1}};
-        for (Node node : nodesByLevel.get(1)) {
-            node.parent = nodes[0];
-            if (node.x < nodes[0].x) nodes[0].left = node;
-            else nodes[0].right = node;
-        }
-
-        for (int lev = 2; lev <= level; lev++) {
-            for (Node node : nodesByLevel.get(lev)) {
-                findParent(nodesByLevel.get(lev - 1), node);
-            }
-        }
+        insertNode1(nodes, len);
 
         preOrderList = new int[len];
         postOrderList = new int[len];
@@ -59,6 +37,51 @@ class Programmers_Level3_42892 {
         if (node.left != null) postOrder(node.left);
         if (node.right != null) postOrder(node.right);
         postOrderList[postIdx++] = node.val + 1;
+    }
+
+    private void insertNode1(Node[] nodes, int len) {
+        for (int i = 1; i < len; i++) {
+            insert(nodes[0], nodes[i]);
+        }
+    }
+
+    private void insert(Node parent, Node node) {
+        if (parent.left == null) {
+            parent.left = node;
+            return;
+        }
+        if (parent.right == null) {
+            parent.right = node;
+            return;
+        }
+        if (parent.x > node.x) insert(parent.left, node);
+        else insert(parent.right, node);
+    }
+
+    private void insertNode2(Node[] nodes, int len) {
+        List<List<Node>> nodesByLevel = new ArrayList<>();
+        int level = 0, height = nodes[0].y;
+        for (int i = 0; i < len; i++) {
+            if (nodes[i].y < height) {
+                height = nodes[i].y;
+                level++;
+            }
+            if (nodesByLevel.size() <= level) nodesByLevel.add(new ArrayList<>());
+            nodesByLevel.get(level).add(nodes[i]);
+        }
+
+        if (nodesByLevel.size() == 1) return;
+        for (Node node : nodesByLevel.get(1)) {
+            node.parent = nodes[0];
+            if (node.x < nodes[0].x) nodes[0].left = node;
+            else nodes[0].right = node;
+        }
+
+        for (int lev = 2; lev <= level; lev++) {
+            for (Node node : nodesByLevel.get(lev)) {
+                findParent(nodesByLevel.get(lev - 1), node);
+            }
+        }
     }
 
     private void findParent(List<Node> allUpLevelNodes, Node node) {
