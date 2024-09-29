@@ -1,4 +1,4 @@
-package linear;
+package datastructure;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

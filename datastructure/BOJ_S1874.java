@@ -1,4 +1,4 @@
-package linear;
+package datastructure;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
