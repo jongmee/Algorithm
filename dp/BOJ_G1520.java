@@ -1,69 +1,61 @@
 package dp;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
-import java.util.List;
 
-import static java.lang.Integer.*;
+import static java.lang.Integer.parseInt;
 
 public class BOJ_G1520 {
-    static final int MAX_HEIGHT = 100001;
+    private static int[] dirR = {-1, 1, 0, 0};
+    private static int[] dirC = {0, 0, -1, 1};
+
+    private static int R, C;
+    private static int[][] map, check;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
         String[] inputs = br.readLine().split(" ");
-        int M = parseInt(inputs[0]), N = parseInt(inputs[1]);
+        R = parseInt(inputs[0]);
+        C = parseInt(inputs[1]);
 
-        int[][] map = new int[M + 2][N + 2];
-        for (int i = 0; i < M + 2; i++) Arrays.fill(map[i], MAX_HEIGHT);
+        map = new int[R][C];
+        check = new int[R][C];
 
-        for (int i = 1; i <= M; i++) {
+        for (int r = 0; r < R; r++) Arrays.fill(check[r], -1); // 갈 수 없는 곳과 구분하기 위함
+
+        for (int r = 0; r < R; r++) {
             inputs = br.readLine().split(" ");
-            for (int j = 1; j <= N; j++) map[i][j] = parseInt(inputs[j - 1]);
+            for (int c = 0; c < C; c++) map[r][c] = parseInt(inputs[c]);
         }
 
-        int[] dirX = {0, 0, -1, 1}; // 상하좌우
-        int[] dirY = {-1, 1, 0, 0};
+        check[R - 1][C - 1] = 1;
+        dfs(0, 0);
 
-        long[][] dp = new long[M + 2][N + 2];
-        dp[1][1] = 1;
-        for (int m = 1; m <= M; m++) {
-            for (int n = 1; n <= N; n++) {
-                for (int dir = 0; dir < 4; dir++) {
-                    int nextX = n + dirX[dir];
-                    int nextY = m + dirY[dir];
-                    if (map[nextY][nextX] < map[m][n]) {
-                        dp[nextY][nextX] += dp[m][n];
-                    }
-                }
-            }
-        }
-
-        int repeat = 4;
-        List<Integer> dirIdx = new ArrayList<>(4);
-        while(repeat-->0) {
-            for (int m = 1; m <= M; m++) {
-                for (int n = 1; n <= N; n++) {
-                    if (m == 1 && n == 1) continue;
-                    dirIdx.clear();
-                    for (int dir = 0; dir < 4; dir++) {
-                        int prevX = n + dirX[dir];
-                        int prevY = m + dirY[dir];
-                        if (map[prevY][prevX] > map[m][n]) dirIdx.add(dir);
-                    }
-                    long tmp = 0;
-                    for (int idx : dirIdx) tmp += dp[m + dirY[idx]][n + dirX[idx]];
-                    dp[m][n] = tmp;
-                }
-            }
-        }
-
-        bw.write(String.valueOf(dp[M][N]));
+        bw.write(check[0][0] + "\n");
 
         bw.flush();
         bw.close();
+    }
+
+    private static int dfs(int r, int c) {
+        if (check[r][c] != -1 && !(r == 0 && c == 0)) return check[r][c];
+        int sum = 0;
+        for (int dir = 0; dir < 4; dir++) {
+            int nextR = r + dirR[dir], nextC = c + dirC[dir];
+            if (isValid(nextR, nextC) && map[nextR][nextC] < map[r][c]) {
+                sum += dfs(nextR, nextC);
+            }
+        }
+        return check[r][c] = sum;
+    }
+
+    private static boolean isValid(int r, int c) {
+        return r >= 0 && c >= 0 && r < R && c < C;
     }
 }
