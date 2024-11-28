@@ -5,10 +5,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
@@ -30,7 +26,7 @@ public class BOJ_S14889 {
         }
 
         minDiff = Integer.MAX_VALUE;
-        combination(0, 1, new ArrayDeque<>(List.of(0)));
+        combination(0, 0, new int[N]);
         bw.write(minDiff + "\n");
 
         bw.flush();
@@ -39,35 +35,30 @@ public class BOJ_S14889 {
 
     private static int minDiff;
 
-    private static void combination(int startIdx, int lv, Deque<Integer> team) {
+    private static void combination(int startIdx, int lv, int[] team) {
         if (lv == N / 2) {
-            minDiff = Integer.min(minDiff, calculateDiff(new ArrayList<>(team)));
+            minDiff = Integer.min(minDiff, calculateDiff(team));
             return;
         }
 
-        for (int i = startIdx + 1; i < N; i++) {
-            team.addLast(i);
-            combination(i, lv + 1, team);
-            team.pollLast();
+        for (int i = startIdx; i < N; i++) {
+            if (team[i] == 0) {
+                team[i] = 1;
+                combination(i, lv + 1, team);
+                team[i] = 0;
+            }
+            if (startIdx == 0 && lv == 0) break; // 절반만 봐도 됨
         }
     }
 
-    private static int calculateDiff(List<Integer> team) {
-        List<Integer> opposite = new ArrayList<>();
-        for (int i = 0; i < N; i++)
-            if (!team.contains(i)) opposite.add(i);
+    private static int calculateDiff(int[] team) {
         int teamPower = 0, oppositePower = 0;
-        teamPower = getTotalTeamPower(team, teamPower);
-        oppositePower = getTotalTeamPower(opposite, oppositePower);
-        return Math.abs(teamPower - oppositePower);
-    }
-
-    private static int getTotalTeamPower(List<Integer> team, int teamPower) {
-        for (int i = 0; i < N / 2; i++) {
-            for (int j = i + 1; j < N / 2; j++) {
-                teamPower += powers[team.get(i)][team.get(j)] + powers[team.get(j)][team.get(i)];
+        for (int i = 0; i < N; i++) {
+            for (int j = i + 1; j < N; j++) {
+                if (team[i] == 1 && team[j] == 1) teamPower += powers[i][j] + powers[j][i];
+                if (team[i] == 0 && team[j] == 0) oppositePower += powers[i][j] + powers[j][i];
             }
         }
-        return teamPower;
+        return Math.abs(teamPower - oppositePower);
     }
 }
